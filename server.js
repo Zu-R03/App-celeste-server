@@ -7,7 +7,8 @@ const bodyParser = require('body-parser');
 const app = express();
 const port = process.env.PORT || 5000;
 
-const suscripcionesRouter = require('./routes/suscripciones');
+const suscriptionsRouter = require('./routes/suscriptions');
+const usersRouter = require('./routes/users');
 
 // Configuración de Web Push
 webpush.setVapidDetails(
@@ -34,7 +35,8 @@ mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTop
   .catch(err => console.error('Error al conectar a MongoDB Atlas:', err));
 
 // Rutas
-app.use('/api/suscripciones', suscripcionesRouter);
+app.use('/api/suscripciones', suscriptionsRouter);
+app.use('/api/users', usersRouter);
 
 // Iniciar el servidor
 app.listen(port, () => {

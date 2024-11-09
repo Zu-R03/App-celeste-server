@@ -9,4 +9,4 @@ const suscripcionSchema = new mongoose.Schema({
   }
 }, { timestamps: true });
 
-module.exports = mongoose.model('Suscripcion', suscripcionSchema);
+module.exports = mongoose.model('Suscripciones', suscripcionSchema);
