@@ -16,6 +16,14 @@ webpush.setVapidDetails(
   process.env.VAPID_PRIVATE_KEY
 );
 
+// Middleware para permitir CORS
+app.use((req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');  // O '*' para todos los orígenes
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    next();
+});
+
 // Middleware
 app.use(express.json());
 app.use(bodyParser.json());
