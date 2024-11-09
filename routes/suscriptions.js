@@ -11,11 +11,27 @@ router.post('/subscribe', async (req, res) => {
     const suscripcion = new Suscripcion({ endpoint, expirationTime, keys });
     await suscripcion.save();
 
-    res.status(201).json({ message: 'Suscripción guardada exitosamente' });
+    // Payload para la notificación
+    const payload = {
+      title: 'Notificaciones activadas',
+      body: 'Gracias por suscribirte',
+      //icon: '/path/to/icon.png', // (Opcional) Puedes agregar un icono
+    };
+
+    // Enviar la notificación a la suscripción recién guardada
+    const pushSubscription = {
+      endpoint: suscripcion.endpoint,
+      keys: suscripcion.keys
+    };
+
+    await webpush.sendNotification(pushSubscription, JSON.stringify(payload));
+
+    res.status(201).json({ message: 'Suscripción guardada y notificación enviada exitosamente' });
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
 });
+
 
 // Enviar notificación a una suscripción específica
 router.post('/send', async (req, res) => {
