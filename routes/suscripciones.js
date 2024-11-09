@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const webpush = require('web-push');
-const Suscripcion = require('../models/Suscripcion');
+const Suscripcion = require('../models/suscripcion');
 
 // Guardar una suscripción
 router.post('/subscribe', async (req, res) => {
