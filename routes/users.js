@@ -17,7 +17,7 @@ router.post('/create-user', async (req, res) => {
             // Responder con éxito
             res.status(201).json({
                 message: 'Usuario creado exitosamente',
-                user: { name, lastname, email }
+                user: { name, lastname, email, password }
             });
         }
     } catch (err) {
