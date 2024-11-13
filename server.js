@@ -3,6 +3,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const webpush = require('web-push');
 const bodyParser = require('body-parser');
+const cors = require('cors');  // Agregar el módulo 'cors'
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -17,13 +18,13 @@ webpush.setVapidDetails(
   process.env.VAPID_PRIVATE_KEY
 );
 
-// Middleware para permitir CORS
-app.use((req, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin', '*');  // O '*' para todos los orígenes
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-    next();
-});
+// Middleware para permitir CORS usando el paquete 'cors'
+app.use(cors({
+  origin: '*',  // Permite todos los orígenes
+  methods: ['GET', 'POST', 'OPTIONS', 'PUT', 'DELETE'],  // Métodos permitidos
+  allowedHeaders: ['Content-Type', 'Authorization'],  // Encabezados permitidos
+  credentials: true  // Si necesitas habilitar credenciales (cookies, auth headers, etc.)
+}));
 
 // Middleware
 app.use(express.json());
