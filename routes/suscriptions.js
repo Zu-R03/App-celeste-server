@@ -71,7 +71,7 @@ router.post('/sendAll', async (req, res) => {
     });
 
     await Promise.all(notificaciones);
-    res.json({ message: 'Notificaciones enviadas a todas las suscripciones' });
+    res.json({ message: 'Notificaciones enviadas a todas las suscripciones activas' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
