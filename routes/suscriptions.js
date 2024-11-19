@@ -1,27 +1,32 @@
 const express = require('express');
 const router = express.Router();
 const webpush = require('web-push');
-const Suscripcion = require('../models/suscription');
+const User = require('../models/user'); // Importar el modelo actualizado
 
-// Guardar una suscripción
+// Guardar o actualizar una suscripción para un usuario
 router.post('/subscribe', async (req, res) => {
   try {
-    const { endpoint, expirationTime, keys } = req.body;
+    const { userId, endpoint, expirationTime, keys } = req.body;
 
-    const suscripcion = new Suscripcion({ endpoint, expirationTime, keys });
-    await suscripcion.save();
+    // Buscar al usuario por su ID
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
+
+    // Actualizar la suscripción del usuario
+    user.suscripcion = { endpoint, expirationTime, keys };
+    await user.save();
 
     // Payload para la notificación
     const payload = {
       title: 'Notificaciones activadas',
       body: 'Gracias por suscribirte',
-      //icon: '/path/to/icon.png', // (Opcional) Puedes agregar un icono
+      // icon: '/path/to/icon.png', // (Opcional) Puedes agregar un icono
     };
 
     // Enviar la notificación a la suscripción recién guardada
     const pushSubscription = {
-      endpoint: suscripcion.endpoint,
-      keys: suscripcion.keys
+      endpoint: user.suscripcion.endpoint,
+      keys: user.suscripcion.keys
     };
 
     await webpush.sendNotification(pushSubscription, JSON.stringify(payload));
@@ -32,18 +37,19 @@ router.post('/subscribe', async (req, res) => {
   }
 });
 
-
-// Enviar notificación a una suscripción específica
+// Enviar notificación a una suscripción específica (basada en el usuario)
 router.post('/send', async (req, res) => {
-  const { endpoint, payload } = req.body;
+  const { userId, payload } = req.body;
 
   try {
-    const suscripcion = await Suscripcion.findOne({ endpoint });
-    if (!suscripcion) return res.status(404).json({ error: 'Suscripción no encontrada' });
+    const user = await User.findById(userId);
+    if (!user || !user.suscripcion) {
+      return res.status(404).json({ error: 'Usuario o suscripción no encontrada' });
+    }
 
     const pushSubscription = {
-      endpoint: suscripcion.endpoint,
-      keys: suscripcion.keys
+      endpoint: user.suscripcion.endpoint,
+      keys: user.suscripcion.keys
     };
 
     await webpush.sendNotification(pushSubscription, JSON.stringify(payload));
@@ -58,12 +64,13 @@ router.post('/sendAll', async (req, res) => {
   const payload = JSON.stringify(req.body.payload);
 
   try {
-    const suscripciones = await Suscripcion.find();
+    // Obtener todos los usuarios con suscripciones activas
+    const users = await User.find({ 'suscripcion.endpoint': { $exists: true } });
 
-    const notificaciones = suscripciones.map(suscripcion => {
+    const notificaciones = users.map(user => {
       const pushSubscription = {
-        endpoint: suscripcion.endpoint,
-        keys: suscripcion.keys
+        endpoint: user.suscripcion.endpoint,
+        keys: user.suscripcion.keys
       };
       return webpush.sendNotification(pushSubscription, payload).catch(err => {
         console.error('Error enviando notificación:', err);
