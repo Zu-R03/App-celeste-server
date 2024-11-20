@@ -47,30 +47,31 @@ router.post('/login', async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        // Validar que el correo y la contraseña no estén vacíos
         if (!email || !password) {
             return res.status(400).json({ error: 'Correo y contraseña son necesarios' });
         }
 
-        // Buscar el usuario por correo
+        // Buscar al usuario por correo
         const usuario = await Usuario.findOne({ email });
         if (!usuario) {
             return res.status(400).json({ error: 'Correo o contraseña incorrectos' });
         }
 
-        // Comprobar si la contraseña es correcta (sin encriptación)
+        // Asegúrate de que el _id se incluya correctamente
+        const usuarioObj = usuario.toObject();
+
+        // Comprobar si la contraseña es correcta
         if (usuario.password !== password) {
             return res.status(400).json({ error: 'Correo o contraseña incorrectos' });
         }
 
-        // Responder con éxito
         res.status(200).json({
             message: 'Login exitoso',
             user: {
-                id: usuario._id,
-                name: usuario.name,
-                lastname: usuario.lastname,
-                email: usuario.email
+                id: usuarioObj._id, // Asegúrate de enviar el _id
+                name: usuarioObj.name,
+                lastname: usuarioObj.lastname,
+                email: usuarioObj.email
             }
         });
     } catch (err) {
