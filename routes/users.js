@@ -24,7 +24,6 @@ router.post('/create-user', async (req, res) => {
             lastname,
             email,
             password,
-            suscripcion // Puede ser null o un objeto válido
         });
 
         await usuario.save();
