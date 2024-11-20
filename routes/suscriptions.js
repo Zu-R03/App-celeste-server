@@ -43,21 +43,45 @@ router.post('/subscribe', async (req, res) => {
 
 // Enviar notificación a una suscripción específica (basada en el usuario)
 router.post('/send', async (req, res) => {
-  const { userId, payload } = req.body;
+  const { userIds, payload } = req.body; // Cambiar 'userId' por 'userIds'
 
   try {
-    const user = await User.findById(userId);
-    if (!user || !user.suscripcion) {
-      return res.status(404).json({ error: 'Usuario o suscripción no encontrada' });
+    // Validar si se recibieron los 'userIds'
+    if (!userIds || !Array.isArray(userIds) || userIds.length === 0) {
+      return res.status(400).json({ error: 'Se deben proporcionar uno o más userIds' });
     }
 
-    const pushSubscription = {
-      endpoint: user.suscripcion.endpoint,
-      keys: user.suscripcion.keys
-    };
+    // Buscar todos los usuarios con los IDs proporcionados
+    const users = await User.find({ '_id': { $in: userIds } });
 
-    await webpush.sendNotification(pushSubscription, JSON.stringify(payload));
-    res.json({ message: 'Notificación enviada' });
+    // Verificar si existen usuarios con las suscripciones
+    if (users.length === 0) {
+      return res.status(404).json({ error: 'Ningún usuario encontrado con las suscripciones' });
+    }
+
+    // Enviar la notificación a cada usuario
+    const notificaciones = users.map(user => {
+      if (user.suscripcion) {
+        const pushSubscription = {
+          endpoint: user.suscripcion.endpoint,
+          keys: user.suscripcion.keys
+        };
+
+        // Enviar la notificación
+        return webpush.sendNotification(pushSubscription, JSON.stringify(payload)).catch(err => {
+          console.error('Error enviando notificación a:', user._id, err);
+        });
+      } else {
+        console.log('Usuario sin suscripción:', user._id);
+      }
+    });
+
+    // Esperar a que todas las notificaciones se envíen
+    await Promise.all(notificaciones);
+
+    // Responder cuando todas las notificaciones han sido enviadas
+    res.json({ message: 'Notificaciones enviadas a los usuarios seleccionados' });
+
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
