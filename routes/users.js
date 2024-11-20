@@ -43,4 +43,38 @@ router.post('/create-user', async (req, res) => {
     }
 });
 
+router.post('/login', async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        // Validar que el correo y la contraseña no estén vacíos
+        if (!email || !password) {
+            return res.status(400).json({ error: 'Correo y contraseña son necesarios' });
+        }
+
+        // Buscar el usuario por correo
+        const usuario = await Usuario.findOne({ email });
+        if (!usuario) {
+            return res.status(400).json({ error: 'Correo o contraseña incorrectos' });
+        }
+
+        // Comprobar si la contraseña es correcta (sin encriptación)
+        if (usuario.password !== password) {
+            return res.status(400).json({ error: 'Correo o contraseña incorrectos' });
+        }
+
+        // Responder con éxito
+        res.status(200).json({
+            message: 'Login exitoso',
+            user: {
+                name: usuario.name,
+                lastname: usuario.lastname,
+                email: usuario.email
+            }
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 module.exports = router;
