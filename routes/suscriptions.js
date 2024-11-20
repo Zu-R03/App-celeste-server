@@ -8,19 +8,23 @@ router.post('/subscribe', async (req, res) => {
   try {
     const { userId, endpoint, expirationTime, keys } = req.body;
 
+    // Validar los campos obligatorios
+    if (!userId || !endpoint || !keys || !keys.p256dh || !keys.auth) {
+      return res.status(400).json({ error: 'Faltan campos necesarios en la suscripción' });
+    }
+
     // Buscar al usuario por su ID
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
 
     // Actualizar la suscripción del usuario
-    user.suscripcion = { endpoint, expirationTime, keys };
+    user.suscripcion = { endpoint, expirationTime: expirationTime || null, keys };
     await user.save();
 
     // Payload para la notificación
     const payload = {
       title: 'Notificaciones activadas',
       body: 'Gracias por suscribirte',
-      // icon: '/path/to/icon.png', // (Opcional) Puedes agregar un icono
     };
 
     // Enviar la notificación a la suscripción recién guardada
