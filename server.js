@@ -35,7 +35,6 @@ mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTop
   .catch(err => console.error('Error al conectar a MongoDB Atlas:', err));
 
 // Rutas
-app.use('/api/suscripciones', usersRouter);
 app.use('/api/users', usersRouter);
 
 // Iniciar el servidor
