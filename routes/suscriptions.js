@@ -6,10 +6,10 @@ const User = require('../models/user'); // Importar el modelo actualizado
 // Guardar o actualizar una suscripción para un usuario
 router.post('/subscribe', async (req, res) => {
   try {
-    const { userId, endpoint, expirationTime, keys } = req.body;
+    const { userId, subscription } = req.body;
 
-    // Validar los campos obligatorios
-    if (!userId || !endpoint || !keys || !keys.p256dh || !keys.auth) {
+    // Validar que se recibió el objeto de suscripción correctamente
+    if (!subscription || !subscription.endpoint || !subscription.keys || !subscription.keys.p256dh || !subscription.keys.auth) {
       return res.status(400).json({ error: 'Faltan campos necesarios en la suscripción' });
     }
 
@@ -18,7 +18,7 @@ router.post('/subscribe', async (req, res) => {
     if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
 
     // Actualizar la suscripción del usuario
-    user.suscripcion = { endpoint, expirationTime: expirationTime || null, keys };
+    user.suscripcion = subscription; // Guardar el objeto completo de la suscripción
     await user.save();
 
     // Payload para la notificación
