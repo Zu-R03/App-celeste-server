@@ -14,7 +14,7 @@ const usersRouter = require('./routes/users');
 
 // Configuración de Web Push
 webpush.setVapidDetails(
-  'mailto:anthony.martinez.21s@utzmg.edu.mx',
+  'mailto:carlos.mora.21s@utzmg.edumx',
   process.env.VAPID_PUBLIC_KEY,
   process.env.VAPID_PRIVATE_KEY
 );
