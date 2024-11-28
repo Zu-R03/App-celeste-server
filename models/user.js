@@ -17,7 +17,8 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: true
+    required: true,
+    minilength : 2
   },
   suscripcion: { // Datos de la suscripción
     endpoint: { type: String, unique: true }, // Única a nivel global
