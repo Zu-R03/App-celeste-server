@@ -2,9 +2,8 @@ const express = require('express');
 const router = express.Router(); 
 const Usuario = require('../models/user'); 
  
-// Crear a un nuevo usuario 
 router.post('/create-user', async (req, res) => { 
-    console.log('Datos recibidos:', req.body); // Verifica los datos enviados desde el cliente 
+    console.log('Datos recibidos:', req.body); 
  
     try { 
         const { name, lastname, email, password } = req.body; 
@@ -45,17 +44,12 @@ router.post('/login', async (req, res) => {
         if (!email || !password) { 
             return res.status(400).json({ error: 'Correo y contraseña son necesarios' });   
         } 
-  
-        // Buscar al usuario por correo 
-        const usuario = await Usuario.findOne({ email });  
+          const usuario = await Usuario.findOne({ email });  
         if (!usuario) { 
             return res.status(400).json({ error: 'Correo o contraseña incorrectos' }); 
         } 
+         const usuarioObj = usuario.toObject(); 
  
-        // Asegúrate de que el _id se incluya correctamente 
-        const usuarioObj = usuario.toObject(); 
- 
-        // Comprobar si la contraseña es correcta 
         if (usuario.password !== password) { 
             return res.status(400).json({ error: 'Correo o contraseña incorrectos' }); 
         } 
@@ -63,7 +57,7 @@ router.post('/login', async (req, res) => {
         res.status(200).json({ 
             message: 'Login exitoso', 
             user: { 
-                id: usuarioObj._id, // Asegúrate de enviar el _id 
+                id: usuarioObj._id, 
                 name: usuarioObj.name, 
                 lastname: usuarioObj.lastname, 
                 email: usuarioObj.email 

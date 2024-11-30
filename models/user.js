@@ -1,6 +1,5 @@
 const mongoose = require('mongoose'); 
  
-// Definir el esquema del usuario 
 const userSchema = new mongoose.Schema({ 
   name: { 
     type: String, 
@@ -13,15 +12,15 @@ const userSchema = new mongoose.Schema({
   email: { 
     type: String, 
     required: true, 
-    unique: true // Asegura que el correo sea único 
+    unique: true 
   }, 
   password: { 
     type: String, 
     required: true, 
     minilength : 2 
   }, 
-  suscripcion: { // Datos de la suscripción 
-    endpoint: { type: String, unique: true }, // Única a nivel global 
+  suscripcion: { 
+    endpoint: { type: String, unique: true }, 
     expirationTime: { type: Date }, 
     keys: { 
       p256dh: { type: String }, 
